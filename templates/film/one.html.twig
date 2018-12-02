@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<section class="Film">
+
+	<film>	
+		<h2>{{ films.title }}</h2>
+		<div class="metadata">{{ films.createAt | date('d/m/Y') }} à {{ films.createAt | date('H:i') }} dans la catégorie {{ films.category.title }}</div>
+
+		<div class="content">
+			<img src="{{ films.image }}" alt "">
+			<h3>Résumé</h3>
+			{{ films.content | raw }}
+			
+						
+		</div>
+	
+	<button><a class="nav-link" href="{{ path('film_edit', {'id': films.id }) }}">Modifier</a></button>
+	</film>
+</section>
+<br>
+<br>
+<h3>Commentaires</h3>
+<br>
+<button><a class="nav-link" href="{{ path('commentaire') }}">Ajouter commentaire</a></button>	
+<section id="commentaires">
+{% for comment in films.comments %}
+	<div class="comment">
+		<div class="row">
+			<div class="col-3">
+				{{comment.author}} (<small>{{comment.createdAt | date('d/m/Y à H:i')}}</small>)
+				
+			</div>
+			<div class="col">
+				{{comment.content | raw}}
+			</div>
+		</div>
+		
+	</div>
+{% endfor %}
+	
+</section>
+
+{% endblock %}
