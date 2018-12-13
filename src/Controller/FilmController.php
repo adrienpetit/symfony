@@ -17,7 +17,7 @@ use App\Form\FilmsType;
 class FilmController extends AbstractController
 {
     /**
-     * @Route("/film", name="film")
+     * @Route("", name="film")
      */
     public function index(FilmsRepository $repo)
     {
@@ -28,27 +28,17 @@ class FilmController extends AbstractController
             'films' => $films
         ]);
     }
-    /**
-     * @Route("/", name="home")
-     */
-    public function home()
-    {
-    	return $this->render ('film/home.html.twig', ['title' => "Bienvenu !",
-            'age'=> 23
-        ]);
-    }
+   
 
     /**
      * @Route("/film/new", name="film_add")
-     * @Route("/film/{id}/edit", name="film_edit")
      */
 
-    public function form(Films $films = null,Request $request,  ObjectManager $manager)
+    public function form(Request $request)
     {
-        if(!$films)
-        {
-            $films = new Films();
-        }
+        
+        $films = new Films();
+        
         
 
         
@@ -63,7 +53,7 @@ class FilmController extends AbstractController
                   $films->setCreateAt(new \DateTime());
 
             }
-          
+            $manager = $this->getDoctrine()->getManager();
             $manager->persist($films);
             $manager->flush();
 
@@ -72,10 +62,70 @@ class FilmController extends AbstractController
         }
 
 
-        return $this->render('film/add.html.twig',[
-            'formFilms' => $form->createView(),
-            'editMode' => $films->getId() !== null
-        ]);
+        return $this->render('film/add.html.twig',array(
+            'formFilms' => $form->createView()));
+    }
+    /**
+     * @Route("/film/{id}/edit", name="film_edit")
+     */
+      public function editFilms(Request $request, $id)
+    {
+        try {
+            $films = $this->getDoctrine()
+                     ->getRepository(Films::class)
+                     ->find($id);      
+            $form = $this->createForm(FilmsType::class, $films);
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid())
+            {
+                try {
+                    $em = $this->getDoctrine()->getManager();
+                    $em->persist($films);
+                    $em->flush();
+                    $this->addFlash('notice', "Modify with success");
+                }
+                catch (Exception $e) {
+                    $this->addFlash('notice', "Doesn't modify with success");
+                }  
+                     
+                return $this->redirect($this->generateUrl('film'));         
+            }
+        }
+        catch (Exception $e) {
+            $this->addFlash('notice', "Error");
+            return $this->redirect($this->generateUrl('film'));
+        }
+        return $this->render('film/edit.html.twig', array('form' => $form->createView()));
+    }
+    /**
+     * @Route("/film/{id}/del", name="film_del")
+     */
+
+    public function delFilms($id=null){
+
+       try {
+            $tasks = $this->getDoctrine()
+                      ->getRepository(Films::class)
+                      ->findAll();
+            if ($id != null) {
+                try {
+                    $em = $this->getdoctrine()->getManager();
+                    $films = $em->getRepository(Films::class)->find($id);
+                    $em->remove($films);
+                    $em->flush();
+                    $this->addFlash('notice', "Delete with success");
+                }
+                catch (Exception $e) {
+                    $this->addFlash('notice', "Doesn't delete with success");
+                }
+                
+            }
+        }
+        catch (Exception $e) {
+            $this->addFlash('notice', "Error");
+        }        
+        return $this->redirect($this->generateUrl('film'));
+    
     }
 
     /**

@@ -28,9 +28,7 @@ class Category
      */
     private $description;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Films", mappedBy="category")
-     */
+    
     private $films;
 
     public function __construct()
@@ -67,34 +65,5 @@ class Category
         return $this;
     }
 
-    /**
-     * @return Collection|Films[]
-     */
-    public function getFilms(): Collection
-    {
-        return $this->films;
-    }
-
-    public function addFilm(Films $film): self
-    {
-        if (!$this->films->contains($film)) {
-            $this->films[] = $film;
-            $film->setCategory($this);
-        }
-
-        return $this;
-    }
-
-    public function removeFilm(Films $film): self
-    {
-        if ($this->films->contains($film)) {
-            $this->films->removeElement($film);
-            // set the owning side to null (unless already changed)
-            if ($film->getCategory() === $this) {
-                $film->setCategory(null);
-            }
-        }
-
-        return $this;
-    }
+   
 }

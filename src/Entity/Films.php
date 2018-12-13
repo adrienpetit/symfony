@@ -6,7 +6,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\FilmsRepository")
  */
@@ -132,17 +134,20 @@ class Films
     {
         return $this->comments;
     }
+    public function setComment(Comment $comment): self
+    {
+        $this->comment = $comment;
 
+        return $this;
+    }
     public function addComment(Comment $comment): self
     {
         if (!$this->comments->contains($comment)) {
             $this->comments[] = $comment;
             $comment->setFilm($this);
         }
-
         return $this;
     }
-
     public function removeComment(Comment $comment): self
     {
         if ($this->comments->contains($comment)) {
@@ -152,9 +157,13 @@ class Films
                 $comment->setFilm(null);
             }
         }
-
         return $this;
     }
+
+
+
+
+    
 
     
 }
