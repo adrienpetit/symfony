@@ -15,7 +15,7 @@ class Comment
      * @ORM\Column(type="integer")
      */
     private $id;
-
+    
     /**
      * @ORM\Column(type="string", length=255)
      */
@@ -41,6 +41,7 @@ class Comment
     {
         return $this->id;
     }
+    
 
     public function getAuthor(): ?string
     {

@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'bootstrap_4_layout.html.twig'%}
+
+{% block body %}
+
+	<h3> Modification d'une categorie</h3>
+	{{ form_start(form)}}
+
+	
+
+	{{ form_row(form.title,{'attr':{'placeholder':"Titre de la catégorie"}}) }}
+	
+	{{ form_row(form.description,{'attr':{'placeholder':"Description"}}) }}
+	
+
+	<button type="submit" class="btn-success"> 
+			
+
+			Modifier Categorie
+		
+
+	</button>
+	
+	
+		
+	{{ form_end(form)}}
+	
+{% endblock %}

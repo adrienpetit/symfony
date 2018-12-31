@@ -1,7 +1,12 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-
+{% for flashMessage in app.session.flashBag.get('notice') %}
+		<div class="alert alert-success"
+>
+			{{flashMessage}}
+		</div>
+{% endfor%}
 <section class="Film">
 
 	<film>	
@@ -25,7 +30,7 @@
 <br>
 <h3>Commentaires</h3>
 <br>
-<button><a class="nav-link" href="{{ path('commentaire') }}">Ajouter commentaire</a></button>	
+<button><a class="nav-link" href="{{ path('commentaire', {'id': films.id }) }}">Ajouter commentaire</a></button>	
 <section id="commentaires">
 {% for comment in films.comments %}
 	<div class="comment">
@@ -36,6 +41,8 @@
 			</div>
 			<div class="col">
 				{{comment.content | raw}}
+					<button><a class="nav-link" href="{{ path('com_del', {'id': comment.id }) }}">Supprimer</a></button>	
+
 			</div>
 		</div>
 		

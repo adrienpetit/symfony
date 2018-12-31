@@ -25,7 +25,37 @@ use Symfony\Component\Serializer\Serializer;
 class CategoryControllerApiController extends AbstractController
 {
     /**
-     * @Route("/categorie/api/category", name="api_category_add", methods={"POST", "OPTIONS"})
+     * @Route("api/categories", name="api_categories", methods={"GET"})
+     */
+    public function show()
+    {
+
+        $response = new Response();
+        $query = array();
+
+        $encoders = array(new JsonEncoder());
+        $normalizer = new ObjectNormalizer();
+        $normalizer->setCircularReferenceLimit(1);
+
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            return $object->getId();
+        });
+        $normalizers = array($normalizer);
+        $serializer = new Serializer($normalizers, $encoders);
+       
+        $categories = $this->getDoctrine()
+                      ->getRepository(Category::class)
+                      ->findAll();
+        $jsonContent = $serializer->serialize($categories, 'json');
+        $response->setContent($jsonContent);
+        $response->headers->set('Content-Type', 'application/json');
+        $response->setStatusCode('200');
+        return $response;
+
+
+    }
+    /**
+     * @Route("/api/category", name="api_category_add", methods={"POST", "OPTIONS"})
      */
      public function add(Request $request)
     {
@@ -65,4 +95,96 @@ class CategoryControllerApiController extends AbstractController
         $response->setContent(json_encode($query));
         return $response;
     }
+   /**
+     * @Route("/api/categories/edit/{id}", name="api_categories_edit", methods={"PUT", "OPTIONS"})
+     */
+      public function editCategories(Request $request, $id)
+    {
+         
+        $response = new Response();
+        $query = array();
+        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+        {
+            $response = new Response();
+            $response->headers->set('Content-Type', 'application/text');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type',true);
+            return $response;
+        }
+        $encoders = array(new JsonEncoder());
+        $normalizer = new ObjectNormalizer();
+        $normalizer->setCircularReferenceLimit(1);
+
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            return $object->getId();
+        });
+        $normalizers = array($normalizer);
+        $serializer = new Serializer($normalizers, $encoders);
+       
+        $json = $request->getContent();
+        $content = json_decode($json, true);
+        try{
+            $categories = $this->getDoctrine()
+                         ->getRepository(Category::class)
+                         ->find($id);
+            
+           
+           
+            
+            $categories->setTitle($content["title"]);
+            $categories->setDescription($content["description"]);
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($categories);
+            $em->flush();
+            
+            $query['valid'] = true; 
+            $query['data'] = array('title' => $content["title"],
+                                   'description' => $content["description"],
+                                   
+                                   );
+            $response->setStatusCode('201');
+            }
+        catch(Exception $e)
+        {
+            $query['valid'] = false;
+            $query['data'] = "Not Changed";
+            $response->setStatusCode('404');
+         }   
+        $response->headers->set('Content-Type', 'application/json');
+        $response->setContent(json_encode($query));
+        return $response;
+        
+    }
+    /**
+     * @Route("/api/category/{id}", name="api_category", methods={"GET"})
+     */
+    public function getCategory($id)
+    {
+        $response = new Response();
+        $encoders = array(new JsonEncoder());
+        $normalizers = array(new ObjectNormalizer());
+        $serializer = new Serializer($normalizers, $encoders);
+        if ($id!= null) {
+            $category = $this->getDoctrine()
+                           ->getRepository(Category::class)
+                           ->find($id);
+            
+            if ($category != null) {
+                $jsonContent = $serializer->serialize($category, 'json');
+    
+                $response->setContent($jsonContent);
+                $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode('200');
+            }
+            else {
+                $response->setStatusCode('404');
+            }
+        }        
+        else {
+            $response->setStatusCode('404');
+        }
+        return $response;
+    }
+     
 }

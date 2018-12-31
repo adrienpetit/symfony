@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+
+
+{% block body %}
+{% for flashMessage in app.session.flashBag.get('notice') %}
+		<div class="alert alert-success">
+			{{flashMessage}}
+		</div>
+{% endfor %}
+
+<section class="categories">
+
+	{%for category in categories %}
+	<category>	
+		<h2> {{ category.title }}</h2>
+		
+		<div class="content">
+			
+			{{ category.description | raw }}
+
+			
+		</div>
+		<button><a class="nav-link" href="{{ path('category_edit', {'id': category.id }) }}">Modifier</a></button>
+	</category>
+	{% endfor %}
+</section>
+
+
+{% endblock %}

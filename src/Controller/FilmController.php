@@ -53,9 +53,16 @@ class FilmController extends AbstractController
                   $films->setCreateAt(new \DateTime());
 
             }
+            try {
             $manager = $this->getDoctrine()->getManager();
             $manager->persist($films);
             $manager->flush();
+            $this->addFlash('notice', "add with success");
+            }
+            catch (Exception $e) {
+                $this->addFlash('notice', "Doesn't add with success");
+            }  
+                  
 
             return $this->redirectToRoute('film_one',['id' => $films->getId()]);
 
@@ -104,7 +111,7 @@ class FilmController extends AbstractController
     public function delFilms($id=null){
 
        try {
-            $tasks = $this->getDoctrine()
+            $films = $this->getDoctrine()
                       ->getRepository(Films::class)
                       ->findAll();
             if ($id != null) {

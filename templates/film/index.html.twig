@@ -3,6 +3,11 @@
 {% block title %}Hello {{ controller_name }}!{% endblock %}
 
 {% block body %}
+{% for flashMessage in app.session.flashBag.get('notice') %}
+		<div class="alert alert-success">
+			{{flashMessage}}
+		</div>
+{% endfor %}
 
 <section class="Film">
 

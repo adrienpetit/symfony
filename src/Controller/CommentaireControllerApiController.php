@@ -25,9 +25,9 @@ use Symfony\Component\Serializer\Serializer;
 class CommentaireControllerApiController extends AbstractController
 {
     /**
-     * @Route("/commentaire/controller/api", name="commentaire_controller_api", methods={"POST", "OPTIONS"})
+     * @Route("/api/commentaires/{id}", name="commentaire_controller_api", methods={"POST", "OPTIONS"})
      */
-     public function add(Request $request)
+     public function add(Request $request, $id)
     {
         $response = new Response();
         $query = array();
@@ -44,15 +44,24 @@ class CommentaireControllerApiController extends AbstractController
         if (isset($content["author"]) && isset($content["content"]))
         {
             $comment = new Comment();
-            $comment->setTitle($content["author"]);
-            $comment->setDescription($content["content"]);
+            $films = $this->getDoctrine()
+                             ->getRepository(Films::class)
+                             ->find($id);
+
+            $comment->setAuthor($content["author"]);
+            $comment->setContent($content["content"]);
+            $comment->setCreatedAt(new \DateTime());
+            $comment->setFilm($films);
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($comment);
             $em->flush();
             
             $query['valid'] = true; 
             $query['data'] = array('author' => $content["author"],
+
                                    'content' => $content["content"]);
+
             $response->setStatusCode('201');
         }
         else 
@@ -63,6 +72,81 @@ class CommentaireControllerApiController extends AbstractController
         }        
         $response->headers->set('Content-Type', 'application/json');
         $response->setContent(json_encode($query));
+        return $response;
+    }
+    /**
+     * @Route("/api/comment/del/{id}", name="api_comment_del", methods={"DELETE", "OPTIONS"})
+     */
+
+    public function delCom($id=null)
+    {
+
+        $response = new Response();
+        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+        {
+            $response = new Response();
+            $response->headers->set('Content-Type', 'application/text');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type',true);
+            return $response;
+        }
+        if ($id != null) {
+            $em = $this->getdoctrine()->getManager();
+            $comment = $em->getRepository(Films::class)->find($id);
+            $em->remove($comment);
+            $em->flush();
+            $query['valid'] = true;
+            $response->setStatusCode('200');
+        }
+        else
+        {
+            $query['valid'] = false;
+            $response->setStatusCode('404');
+        }
+        $response->headers->set('Content-Type', 'application/json');
+        $response->setContent(json_encode($query));
+        return $response;
+    
+    
+    }
+    /**
+     * @Route("/api/commentaire/{id}", name="api_commentaire_one", methods={"GET"})
+     */
+
+    public function oneCommentaire($id){
+
+        $response = new Response();
+        $query = array();
+       
+        $encoders = array(new JsonEncoder());
+        $normalizer = new ObjectNormalizer();
+        $normalizer->setCircularReferenceLimit(1);
+
+        $normalizer->setCircularReferenceHandler(function ($object) {
+            return $object->getId();
+        });
+        $normalizers = array($normalizer);
+        $serializer = new Serializer($normalizers, $encoders);
+        if ($id != null) {
+            $comment = $this->getDoctrine()
+                      ->getRepository(Films::class)
+                      ->find($id);
+            
+            if ($comment != null) {
+                $jsonContent = $serializer->serialize($comment, 'json');
+                
+                $response->setContent($jsonContent);
+                $response->headers->set('Content-Type', 'application/json');
+                $response->setStatusCode('200');
+            }
+            else {
+                $response->setStatusCode('404');
+            }
+        }        
+        else {
+            $response->setStatusCode('404');
+        }
         return $response;
     }
 }

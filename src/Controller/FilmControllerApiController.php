@@ -25,10 +25,11 @@ use Symfony\Component\Serializer\Serializer;
 class FilmControllerApiController extends AbstractController
 {
     /**
-     * @Route("/api/index", name="api_index",methods={"GET"})
+     * @Route("/api/index", name="api_index",methods={"GET", "OPTIONS"})
      */
     public function index()
     {
+
     	$response = new Response();
         $query = array();
         $encoders = array(new JsonEncoder());
@@ -40,6 +41,15 @@ class FilmControllerApiController extends AbstractController
 		});
 		$normalizers = array($normalizer);
         $serializer = new Serializer($normalizers, $encoders);
+        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+        {
+            $response = new Response();
+            $response->headers->set('Content-Type', 'application/text');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type',true);
+            return $response;
+        }
         $films = $this->getDoctrine()
                       ->getRepository(Films::class)
                       ->findAll();
@@ -59,6 +69,15 @@ class FilmControllerApiController extends AbstractController
     {
        	$response = new Response();
         $query = array();
+        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
+        {
+            $response = new Response();
+            $response->headers->set('Content-Type', 'application/text');
+            $response->headers->set('Access-Control-Allow-Origin', '*');
+            $response->headers->set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type',true);
+            return $response;
+        }
         $encoders = array(new JsonEncoder());
         $normalizer = new ObjectNormalizer();
         $normalizer->setCircularReferenceLimit(1);
@@ -69,19 +88,12 @@ class FilmControllerApiController extends AbstractController
 		$normalizers = array($normalizer);
         $serializer = new Serializer($normalizers, $encoders);
         $query = array();
-        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
-        {
-            $response = new Response();
-            $response->headers->set('Content-Type', 'application/text');
-            $response->headers->set('Access-Control-Allow-Origin', '*');
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type',true);
-            return $response;
-        }
+        
         $json = $request->getContent();
         $content = json_decode($json, true);
-        if (isset($content["title"]) && isset($content["content"]) && isset($content["image"]))
-        {
+        try {
+            
+              
             $films = new Films();
             $category = $this->getDoctrine()
                              ->getRepository(Category::class)
@@ -90,21 +102,24 @@ class FilmControllerApiController extends AbstractController
             $films->setTitle($content["title"]);
             $films->setContent($content["content"]);
             $films->setImage($content["image"]);
+            $films->setCreateAt(new \DateTime());
             $films->setCategory($category);
-           // $films->setFkState($state);
+           
             $em = $this->getDoctrine()->getManager();
             $em->persist($films);
             $em->flush();            
             
             $query['valid'] = true; 
             $query['data'] = array('title' => $content["title"],
-                                   'content' => $content["description"],
+                                   'content' => $content["content"],
+                                   'image'=>$content["image"],
                                    'category' => json_decode($serializer->serialize($category, 'json')),
                                    );
             $response->setStatusCode('201');
         }
-        else 
-        {
+         catch (Exception $e) {
+            
+         
             $query['valid'] = false; 
             $query['data'] = null;
             $response->setStatusCode('404');
@@ -117,20 +132,13 @@ class FilmControllerApiController extends AbstractController
     }
 
     /**
-     * @Route("/api/film/{id}/edit", name="api_film_edit", methods={"POST", "OPTIONS"})
+     * @Route("/api/film/edit/{id}", name="api_film_edit", methods={"PUT", "OPTIONS"})
      */
       public function editFilms(Request $request, $id)
     {
-    	$response = new Response();
-        $query = array();
+    	$response = new Response();        
         $encoders = array(new JsonEncoder());
-        $normalizer = new ObjectNormalizer();
-        $normalizer->setCircularReferenceLimit(1);
-
-        $normalizer->setCircularReferenceHandler(function ($object) {
-		    return $object->getId();
-		});
-		$normalizers = array($normalizer);
+        $normalizers = array(new ObjectNormalizer());
         $serializer = new Serializer($normalizers, $encoders);
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
         {
@@ -143,7 +151,7 @@ class FilmControllerApiController extends AbstractController
         }
         $json = $request->getContent();
         $content = json_decode($json, true);
-        if ($id!= null && isset($content["title"]) && isset($content["content"]) && isset($content["image"]))
+        try
         {
             $films = $this->getDoctrine()
                          ->getRepository(Films::class)
@@ -152,11 +160,12 @@ class FilmControllerApiController extends AbstractController
             $category = $this->getDoctrine()
                              ->getRepository(Category::class)
                              ->find($content["category"]);
-           
+            
             
             $films->setTitle($content["title"]);
             $films->setContent($content["content"]);
             $films->setImage($content["image"]);
+            $films->setCreateAt(new \DateTime());
             $films->setCategory($category);
             $em = $this->getDoctrine()->getManager();
             $em->persist($films);
@@ -164,12 +173,13 @@ class FilmControllerApiController extends AbstractController
             
             $query['valid'] = true; 
             $query['data'] = array('title' => $content["title"],
-                                   'content' => $content["description"],
+                                   'content' => $content["content"],
+                                   'image' => $content["image"],
                                    'category' => json_decode($serializer->serialize($category, 'json')),
-                                   );
-            $response->setStatusCode('201');
+                                  );
+            $response->setStatusCode('200');
         }
-        else 
+        catch (Exception $e)
         {
             $query['valid'] = false; 
             $query['data'] = null;
@@ -181,7 +191,7 @@ class FilmControllerApiController extends AbstractController
         
     }
     /**
-     * @Route("/api/film/{id}/del", name="api_film_del", methods={"DELETE", "OPTIONS"})
+     * @Route("/api/film/del/{id}", name="api_film_del", methods={"DELETE", "OPTIONS"})
      */
 
     public function delFilms($id=null){
