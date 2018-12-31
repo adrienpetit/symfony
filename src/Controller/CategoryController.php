@@ -20,6 +20,8 @@ class CategoryController extends AbstractController
     /**
      * @Route("/categories", name="categories")
      */
+        //Fonction pour montrer les catégories
+
     public function show(CategoryRepository $repo)
     {
         
@@ -32,14 +34,18 @@ class CategoryController extends AbstractController
     /**
      * @Route("/categorie/category", name="category_add")
      */
+        //Fonction pour ajouter une catégorie
+
      public function add(Request $request, ObjectManager $manager)
     {
+        //nouvel objet catégorie
         $category = new Category();
 
         $form = $this->createForm(CategoryType::class, $category);
 
         $form->handleRequest($request);
 
+        //vérification du formulaire envoyé
         if($form->isSubmitted() && $form->isValid())
         {
 
@@ -62,6 +68,8 @@ class CategoryController extends AbstractController
     /**
      * @Route("/categorie/category/{id}/edit", name="category_edit")
      */
+        //Fonction pour modifier un commentaire
+
       public function editCategory(Request $request, $id)
     {
         try {

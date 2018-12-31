@@ -19,6 +19,7 @@ class FilmController extends AbstractController
     /**
      * @Route("", name="film")
      */
+    //Fonction permettant d'afficher les films
     public function index(FilmsRepository $repo)
     {
         
@@ -33,10 +34,11 @@ class FilmController extends AbstractController
     /**
      * @Route("/film/new", name="film_add")
      */
+    //Fonction permettant d'ajouter un nouveau film
 
     public function form(Request $request)
     {
-        
+        //nouvel objet
         $films = new Films();
         
         
@@ -45,7 +47,7 @@ class FilmController extends AbstractController
         $form = $this->createForm(FilmsType::class, $films);            
 
         $form->handleRequest($request);
-
+        //vérification du formulaire
         if ($form->isSubmitted() && $form->isValid()) 
         {
             if(!$films->getId())
@@ -75,14 +77,20 @@ class FilmController extends AbstractController
     /**
      * @Route("/film/{id}/edit", name="film_edit")
      */
+
+    //Fonction permettant de modifier les films
+
       public function editFilms(Request $request, $id)
     {
+        //On recupere le film en fonction de l'id
         try {
             $films = $this->getDoctrine()
                      ->getRepository(Films::class)
                      ->find($id);      
             $form = $this->createForm(FilmsType::class, $films);
             $form->handleRequest($request);
+            //Vérifier le nouveau formulaire envoyé
+
             if ($form->isSubmitted() && $form->isValid())
             {
                 try {
@@ -107,8 +115,10 @@ class FilmController extends AbstractController
     /**
      * @Route("/film/{id}/del", name="film_del")
      */
+    //Fonction permettant de supprimer les films
 
     public function delFilms($id=null){
+        //On recupere le film en fonction de l'id
 
        try {
             $films = $this->getDoctrine()
@@ -138,7 +148,7 @@ class FilmController extends AbstractController
     /**
      * @Route("/film/{id}", name="film_one")
      */
-
+    //Fonction pour afficher un film en fonction de l'id
     public function one(Films $films){
 
         return $this->render('film/one.html.twig',[

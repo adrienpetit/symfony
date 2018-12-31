@@ -27,6 +27,7 @@ class CommentaireControllerApiController extends AbstractController
     /**
      * @Route("/api/commentaires/{id}", name="commentaire_controller_api", methods={"POST", "OPTIONS"})
      */
+    //fonction pour rajouter un commentaire en fonction d'un film
      public function add(Request $request, $id)
     {
         $response = new Response();
@@ -43,7 +44,9 @@ class CommentaireControllerApiController extends AbstractController
         $content = json_decode($json, true);
         if (isset($content["author"]) && isset($content["content"]))
         {
+            //nouvel objet commentaire
             $comment = new Comment();
+            //recupere le film en fonction de l'id
             $films = $this->getDoctrine()
                              ->getRepository(Films::class)
                              ->find($id);
@@ -77,7 +80,7 @@ class CommentaireControllerApiController extends AbstractController
     /**
      * @Route("/api/comment/del/{id}", name="api_comment_del", methods={"DELETE", "OPTIONS"})
      */
-
+    //fonction pour supprimer un commentaire
     public function delCom($id=null)
     {
 

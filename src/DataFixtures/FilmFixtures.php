@@ -9,6 +9,7 @@ use App\Entity\Category;
 use App\Entity\Comment;
 class FilmFixtures extends Fixture
 {
+    //Fonction pour ajouter de fausses données a la bdd
     public function load(ObjectManager $manager)
     {
         $faker = \Faker\Factory::create('fr_FR');

@@ -27,6 +27,7 @@ class FilmControllerApiController extends AbstractController
     /**
      * @Route("/api/index", name="api_index",methods={"GET", "OPTIONS"})
      */
+    //fonction pour afficher les films 
     public function index()
     {
 
@@ -50,6 +51,7 @@ class FilmControllerApiController extends AbstractController
             $response->headers->set('Access-Control-Allow-Headers', 'Content-Type',true);
             return $response;
         }
+        //recupere tous les films
         $films = $this->getDoctrine()
                       ->getRepository(Films::class)
                       ->findAll();
@@ -65,6 +67,7 @@ class FilmControllerApiController extends AbstractController
   	/**
      * @Route("/api/form", name="api_form", methods={"POST", "OPTIONS"})
      */
+    //fonction pour ajouter un nouveau film
     public function form(Request $request)
     {
        	$response = new Response();
@@ -93,8 +96,9 @@ class FilmControllerApiController extends AbstractController
         $content = json_decode($json, true);
         try {
             
-              
+            //nouvel objet film  
             $films = new Films();
+            //recuperer la categorie choisie dans le champ
             $category = $this->getDoctrine()
                              ->getRepository(Category::class)
                              ->find($content["category"]);
@@ -134,6 +138,7 @@ class FilmControllerApiController extends AbstractController
     /**
      * @Route("/api/film/edit/{id}", name="api_film_edit", methods={"PUT", "OPTIONS"})
      */
+    //fonction pour modifier les films
       public function editFilms(Request $request, $id)
     {
     	$response = new Response();        
@@ -153,10 +158,11 @@ class FilmControllerApiController extends AbstractController
         $content = json_decode($json, true);
         try
         {
+            //recuperer le film
             $films = $this->getDoctrine()
                          ->getRepository(Films::class)
                          ->find($id);
-            
+            //recuperer la categorie choisie dans le champ
             $category = $this->getDoctrine()
                              ->getRepository(Category::class)
                              ->find($content["category"]);
@@ -193,6 +199,7 @@ class FilmControllerApiController extends AbstractController
     /**
      * @Route("/api/film/del/{id}", name="api_film_del", methods={"DELETE", "OPTIONS"})
      */
+    //Fonction pour supprimer un film
 
     public function delFilms($id=null){
 
@@ -229,7 +236,7 @@ class FilmControllerApiController extends AbstractController
     /**
      * @Route("/api/film/{id}", name="api_film_one", methods={"GET"})
      */
-
+    //Fonction pour afficher un film
     public function one($id){
 
         $response = new Response();
