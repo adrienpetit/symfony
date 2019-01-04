@@ -19,21 +19,21 @@ class CommentaireController extends AbstractController
     /**
      * @Route("/film/{id}/commentaire", name="commentaire")
      */
-    //Fonction pour ajouter un commentaire
+    //add comment
      public function add(Request $request, $id)
     {   
-        //ajoute du commentaire en fonction de l'id du film
+        //add comment with id of the movie
         try {
             $films = $this->getDoctrine()
                      ->getRepository(Films::class)
                      ->find($id);
-        //nouvel objet commentaire
+        //new object comment
         $comment = new Comment();
         
         $form = $this->createForm(CommentType::class, $comment);
 
         $form->handleRequest($request);
-        //vérifie le formulaire envoyé
+        //check the form
         if($form->isSubmitted() && $form->isValid())
         {
             $comment->setCreatedAt(new \DateTime());
@@ -64,7 +64,7 @@ class CommentaireController extends AbstractController
      * @Route("/comment/{id}/del", name="com_del")
      */
 
-    //Fonction pour supprimer un commentaire
+    //delete comment
     public function delCom($id=null){
 
        try {

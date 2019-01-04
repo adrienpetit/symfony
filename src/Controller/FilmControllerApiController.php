@@ -25,9 +25,9 @@ use Symfony\Component\Serializer\Serializer;
 class FilmControllerApiController extends AbstractController
 {
     /**
-     * @Route("/api/index", name="api_index",methods={"GET", "OPTIONS"})
+     * @Route("/api/index", name="api_index",methods={"GET"})
      */
-    //fonction pour afficher les films 
+    //Get all the movies 
     public function index()
     {
 
@@ -42,16 +42,8 @@ class FilmControllerApiController extends AbstractController
 		});
 		$normalizers = array($normalizer);
         $serializer = new Serializer($normalizers, $encoders);
-        if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS')
-        {
-            $response = new Response();
-            $response->headers->set('Content-Type', 'application/text');
-            $response->headers->set('Access-Control-Allow-Origin', '*');
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type',true);
-            return $response;
-        }
-        //recupere tous les films
+       
+        //Get all
         $films = $this->getDoctrine()
                       ->getRepository(Films::class)
                       ->findAll();
@@ -67,7 +59,7 @@ class FilmControllerApiController extends AbstractController
   	/**
      * @Route("/api/form", name="api_form", methods={"POST", "OPTIONS"})
      */
-    //fonction pour ajouter un nouveau film
+    //Create movie
     public function form(Request $request)
     {
        	$response = new Response();
@@ -96,13 +88,13 @@ class FilmControllerApiController extends AbstractController
         $content = json_decode($json, true);
         try {
             
-            //nouvel objet film  
+            //new object movie 
             $films = new Films();
-            //recuperer la categorie choisie dans le champ
+            //Get the field "category"
             $category = $this->getDoctrine()
                              ->getRepository(Category::class)
                              ->find($content["category"]);
-           
+            //Set the fields of a movie
             $films->setTitle($content["title"]);
             $films->setContent($content["content"]);
             $films->setImage($content["image"]);
@@ -138,7 +130,7 @@ class FilmControllerApiController extends AbstractController
     /**
      * @Route("/api/film/edit/{id}", name="api_film_edit", methods={"PUT", "OPTIONS"})
      */
-    //fonction pour modifier les films
+    //Edit movie
       public function editFilms(Request $request, $id)
     {
     	$response = new Response();        
@@ -158,16 +150,16 @@ class FilmControllerApiController extends AbstractController
         $content = json_decode($json, true);
         try
         {
-            //recuperer le film
+            //Get the movie
             $films = $this->getDoctrine()
                          ->getRepository(Films::class)
                          ->find($id);
-            //recuperer la categorie choisie dans le champ
+            //Get the field "category"
             $category = $this->getDoctrine()
                              ->getRepository(Category::class)
                              ->find($content["category"]);
             
-            
+            //Reset the fields of a movie
             $films->setTitle($content["title"]);
             $films->setContent($content["content"]);
             $films->setImage($content["image"]);
@@ -199,7 +191,7 @@ class FilmControllerApiController extends AbstractController
     /**
      * @Route("/api/film/del/{id}", name="api_film_del", methods={"DELETE", "OPTIONS"})
      */
-    //Fonction pour supprimer un film
+    //Delete a movie
 
     public function delFilms($id=null){
 
@@ -236,7 +228,7 @@ class FilmControllerApiController extends AbstractController
     /**
      * @Route("/api/film/{id}", name="api_film_one", methods={"GET"})
      */
-    //Fonction pour afficher un film
+    //Get one movie
     public function one($id){
 
         $response = new Response();

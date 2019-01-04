@@ -27,7 +27,7 @@ class CategoryControllerApiController extends AbstractController
     /**
      * @Route("api/categories", name="api_categories", methods={"GET"})
      */
-    //Fonction pour montrer les catégories
+     //Show all categories
 
     public function show()
     {
@@ -59,7 +59,7 @@ class CategoryControllerApiController extends AbstractController
     /**
      * @Route("/api/category", name="api_category_add", methods={"POST", "OPTIONS"})
      */
-     //Fonction pour ajouter une catégorie
+    //Add category
 
      public function add(Request $request)
     {
@@ -77,7 +77,7 @@ class CategoryControllerApiController extends AbstractController
         $content = json_decode($json, true);
         if (isset($content["title"]) && isset($content["description"]))
         {
-            //nouvel objet catégorie
+              //new object category
             $category = new Category();
             $category->setTitle($content["title"]);
             $category->setDescription($content["description"]);
@@ -103,8 +103,7 @@ class CategoryControllerApiController extends AbstractController
    /**
      * @Route("/api/categories/edit/{id}", name="api_categories_edit", methods={"PUT", "OPTIONS"})
      */
-    //Fonction pour modifier un commentaire
-
+ //Edit category
       public function editCategories(Request $request, $id)
     {
          
@@ -166,7 +165,7 @@ class CategoryControllerApiController extends AbstractController
     /**
      * @Route("/api/category/{id}", name="api_category", methods={"GET"})
      */
-    //fonction pour récuperer une catégorie en fonction de l'id
+    //Get a category with id
     public function getCategory($id)
     {
         $response = new Response();
